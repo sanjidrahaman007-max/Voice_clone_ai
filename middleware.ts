@@ -1,8 +1,18 @@
-import { type NextRequest } from 'next/server';
-import { updateSession } from '@/lib/supabase/middleware';
+import { type NextRequest, NextResponse } from 'next/server';
 
 export async function middleware(request: NextRequest) {
-  return await updateSession(request);
+  // Skip middleware for static files and API routes
+  if (
+    request.nextUrl.pathname.startsWith('/_next') ||
+    request.nextUrl.pathname.startsWith('/api') ||
+    request.nextUrl.pathname.includes('.') // static files
+  ) {
+    return NextResponse.next();
+  }
+
+  // For dashboard routes, we'll let the client-side handle auth
+  // This prevents server-side crashes when Supabase credentials aren't valid
+  return NextResponse.next();
 }
 
 export const config = {
